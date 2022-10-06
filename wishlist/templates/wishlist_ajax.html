@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">{{ nama }}'s WISHLIST!</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+        </ul>
+        <button><a href="{% url 'wishlist:logout' %}">Logout</a></button>
+      </div>
+    </div>
+  </nav>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js%22%3E"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <title>Wishlist</title>
+  </head>
+
+  <body>
+      <div class="p-4">
+          <h5 class="mt-4">Tambah Barang</h5>
+          <form method="POST" action="">
+              {% csrf_token %}
+              <table>
+              <tr>
+                  <td>Nama Barang: </td>
+                  <td><input type="text" name="nama_barang" placeholder="Nama Barang" class="form-control" id="input_nama"></td>
+              </tr>
+              <tr>
+                  <td>Harga Barang: </td>
+                  <td><input type="text" name="harga_barang" placeholder="Harga Barang" class="form-control" id="input_harga"></td>
+              </tr>
+              <tr>
+                  <td>Deskripsi: </td>
+                  <td><input type="text" name="deskripsi" placeholder="Deskripsi" class="form-control" id="input_deskripsi"></td>
+              </tr>
+              </table>
+          </form>
+          <button id="add_wishlist" class="btn border rounded bg-warning mb-2">Tambah</button>
+          <table class="table table-bordered">
+              <tr>
+                  <th>Nama Barang</th>
+                  <th>Harga Barang</th>
+                  <th>Deskripsi</th>
+              </tr>
+          </table>
+          <h6>Sesi terakhir login: {{ last_login }}</h6>
+
+      </div>
+
+      <script>
+          function updateTable(){
+          var itemCount = $(".table > tbody").children().length;
+          for(var i = itemCount; i >= 2; i--){
+              $(".table > tbody > tr:nth-child(" + i + ")").remove();
+          }
+
+          // AJAX GET, melakukan append data
+          $.get("http://localhost:8000/wishlist/json/", function(data) {
+              for(var i = 0; i < data.length; i++){
+
+                  var tr = document.createElement("tr");
+                  var tdNama = document.createElement("td");
+                  tdNama.append(data[i].fields.nama_barang);
+                  var tdHarga = document.createElement("td");
+                  tdHarga.append(data[i].fields.harga_barang);
+                  var tdDeskripsi = document.createElement("td");
+                  tdDeskripsi.append(data[i].fields.deskripsi);
+                  
+                  tr.append(tdNama);
+                  tr.append(tdHarga);
+                  tr.append(tdDeskripsi);
+                  
+                  $(".table").append(tr);
+              }
+              });
+          }
+      
+          $(document).ready(function(){
+              updateTable();
+          
+          $("#add_wishlist").click(function(){ //Ketika di-click
+              var nama = $("#input_nama").val();
+              var harga = $("#input_harga").val();
+              var deskripsi = $("#input_deskripsi").val();
+
+              // AJAX POST untuk meng-update tabel
+              $.post("http://localhost:8000/wishlist/ajax/submit/",
+              {
+                  nama,
+                  harga,
+                  deskripsi,
+              },
+              function(data, status){
+                  console.log("add wishlist success");
+                  updateTable();
+                  $("#input_nama").val("");
+                  $("#input_harga").val("");
+                  $("#input_deskripsi").val("");
+                  });
+              });
+          });
+      </script>
+  </body>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&family=Poppins:wght@400;500;600&display=swap');
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins"
+    }
+    body{
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+    }
+</style>
